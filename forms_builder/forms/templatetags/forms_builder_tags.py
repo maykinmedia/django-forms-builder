@@ -21,6 +21,7 @@ class BuiltFormNode(template.Node):
         request = context["request"]
         user = getattr(request, "user", None)
         post = getattr(request, "POST", None)
+        get = getattr(request, "GET", None)
         files = getattr(request, "FILES", None)
         if self.name != "form":
             lookup = {
@@ -37,7 +38,7 @@ class BuiltFormNode(template.Node):
             return ""
         t = get_template("forms/includes/built_form.html")
         context["form"] = form
-        form_args = (form, context, post or None, files or None)
+        form_args = (form, context, get or None, files or None)
         context["form_for_form"] = FormForForm(*form_args)
         return t.render(context)
 
