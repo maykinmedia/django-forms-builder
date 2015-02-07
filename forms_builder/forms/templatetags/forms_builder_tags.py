@@ -24,17 +24,14 @@ class BuiltFormNode(template.Node):
         get = getattr(request, "GET", None)
         files = getattr(request, "FILES", None)
         if self.name != "form":
-            lookup = {
-                str(self.name): template.Variable(self.value).resolve(context)
-            }
+            lookup_value = template.Variable(self.value).resolve(context)
             try:
-                form = Form.objects.published(for_user=user).get(**lookup)
+                form = Form.objects.get(**{str(self.name): lookup_value})
             except Form.DoesNotExist:
                 form = None
         else:
             form = template.Variable(self.value).resolve(context)
-        if not isinstance(form, Form) or (form.login_required and not
-                                          user.is_authenticated()):
+        if not isinstance(form, Form) or not form.published(for_user=user):
             return ""
         t = get_template("forms/includes/built_form.html")
         context["form"] = form

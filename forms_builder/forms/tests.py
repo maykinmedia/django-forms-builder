@@ -4,15 +4,16 @@ from django.conf import settings
 from django.contrib.auth.models import User, AnonymousUser
 from django.contrib.sites.models import Site
 from django.db import IntegrityError
+from django.http import HttpResponseRedirect
 from django.template import Context, RequestContext, Template
 from django.test import TestCase
 
+from forms_builder.forms.fields import NAMES, FILE
+from forms_builder.forms.forms import FormForForm
 from forms_builder.forms.models import (Form, Field,
                                         STATUS_DRAFT, STATUS_PUBLISHED)
-from forms_builder.forms.fields import NAMES, FILE
 from forms_builder.forms.settings import USE_SITES
 from forms_builder.forms.signals import form_invalid, form_valid
-from forms_builder.forms.forms import FormForForm
 
 
 class Tests(TestCase):
@@ -106,7 +107,8 @@ class Tests(TestCase):
         data = {'field_%s' % fields[0].id: ''}
         context = Context({})
         form_for_form = FormForForm(form, context, data=data)
-        #should not raise IntegrityError: forms_fieldentry.value may not be NULL
+        # Should not raise IntegrityError: forms_fieldentry.value
+        # may not be NULL
         form_for_form.save()
 
 
@@ -142,3 +144,17 @@ class Tests(TestCase):
                            required=True, visible=True)
         response = self.client.post(form.get_absolute_url(), {"foo": "bar"})
         self.assertTrue("This field is required" in str(response.content))
+
+    def test_form_redirect(self):
+        redirect_url = 'http://example.com/foo'
+        form = Form.objects.create(title='Test', redirect_url=redirect_url)
+        if USE_SITES:
+            form.sites.add(self._site)
+            form.save()
+        form.fields.create(label='field', field_type=NAMES[3][0],
+                           required=True, visible=True)
+        form_absolute_url = form.get_absolute_url()
+        response = self.client.post(form_absolute_url, {'field': '0'})
+        self.assertEqual(response["location"], redirect_url)
+        response = self.client.post(form_absolute_url, {'field': 'bar'})
+        self.assertFalse(isinstance(response, HttpResponseRedirect))

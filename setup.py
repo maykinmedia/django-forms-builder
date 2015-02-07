@@ -1,5 +1,7 @@
 
 import os
+import sys
+from shutil import rmtree
 from setuptools import setup, find_packages
 
 
@@ -19,6 +21,15 @@ for e in exclude:
     except Exception:
         pass
 
+if sys.argv[:2] == ["setup.py", "bdist_wheel"]:
+    # Remove previous build dir when creating a wheel build,
+    # since if files have been removed from the project,
+    # they'll still be cached in the build dir and end up
+    # as part of the build, which is unexpected.
+    try:
+        rmtree("build")
+    except:
+        pass
 
 try:
     setup(
@@ -38,7 +49,7 @@ try:
             "sphinx-me >= 0.1.2",
             "unidecode",
             "django-email-extras >= 0.2",
-            "django >= 1.4, < 1.7",
+            "django >= 1.4, < 1.8",
             "future == 0.9.0",
         ],
         classifiers = [

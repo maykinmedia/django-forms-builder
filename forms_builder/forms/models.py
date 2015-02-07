@@ -1,13 +1,13 @@
 from __future__ import unicode_literals
-from future.builtins import str
 
-from django.core.urlresolvers import reverse
-from django.conf import settings as django_settings
 from django.contrib.sites.models import Site
+from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Q
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext, ugettext_lazy as _
+from future.builtins import str
 
 from forms_builder.forms import fields
 from forms_builder.forms import settings
@@ -54,7 +54,7 @@ class AbstractForm(models.Model):
     """
 
     sites = models.ManyToManyField(Site, editable=settings.USE_SITES,
-        default=[django_settings.SITE_ID], related_name="%(app_label)s_%(class)s_forms")
+        default=[settings.SITE_ID], related_name="%(app_label)s_%(class)s_forms")
     title = models.CharField(_("Title"), max_length=50)
     slug = models.SlugField(_("Slug"), editable=settings.EDITABLE_SLUGS,
         max_length=100, unique=True)
@@ -62,6 +62,9 @@ class AbstractForm(models.Model):
     button_text = models.CharField(_("Button text"), max_length=50,
         default=_("Submit"))
     response = models.TextField(_("Response"), blank=True)
+    redirect_url = models.CharField(_("Redirect url"), max_length=200,
+        null=True, blank=True,
+        help_text=_("An alternate URL to redirect to after form submission"))
     status = models.IntegerField(_("Status"), choices=STATUS_CHOICES,
         default=STATUS_PUBLISHED)
     publish_date = models.DateTimeField(_("Published from"),
@@ -101,6 +104,22 @@ class AbstractForm(models.Model):
             slug = slugify(self)
             self.slug = unique_slug(self.__class__.objects, "slug", slug)
         super(AbstractForm, self).save(*args, **kwargs)
+
+    def published(self, for_user=None):
+        """
+        Mimics the queryset logic in ``FormManager.published``, so we
+        can check a form is published when it wasn't loaded via the
+        queryset's ``published`` method, and is passed to the
+        ``render_built_form`` template tag.
+        """
+        if for_user is not None and for_user.is_staff:
+            return True
+        status = self.status == STATUS_PUBLISHED
+        publish_date = self.publish_date is None or self.publish_date <= now()
+        expiry_date = self.expiry_date is None or self.expiry_date >= now()
+        authenticated = for_user is not None and for_user.is_authenticated()
+        login_required = (not self.login_required or authenticated)
+        return status and publish_date and expiry_date and login_required
 
     def total_entries(self):
         """

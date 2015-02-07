@@ -4,6 +4,7 @@ import json
 
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
@@ -103,7 +104,7 @@ class FormDetail(TemplateView, FormDetailMixin):
     def post(self, request, *args, **kwargs):
         is_ajax, form, context = self.form_post(request, kwargs['slug'])
         if not is_ajax:
-            return redirect("form_sent", slug=form.slug)
+            return redirect(form.redirect_url or reverse("form_sent", kwargs={"slug": form.slug}))
         return self.render_to_response(context)
 
     def render_to_response(self, context, **kwargs):
