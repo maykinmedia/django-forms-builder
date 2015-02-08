@@ -135,8 +135,13 @@ class AbstractForm(models.Model):
 
     def admin_links(self):
         kw = {"args": (self.id,)}
-        links = [
-            (_("View form on site"), self.get_absolute_url()),
+        try:
+            links = [
+                (_("View form on site"), self.get_absolute_url()),
+            ]
+        except:
+            links = []
+        links += [
             (_("Filter entries"), reverse("admin:form_entries", **kw)),
             (_("View all entries"), reverse("admin:form_entries_show", **kw)),
             (_("Export all entries"), reverse("admin:form_entries_export", **kw)),
