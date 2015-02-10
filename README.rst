@@ -302,3 +302,6 @@ Just add that package to your ``INSTALLED_APPS`` above the ``forms_builder.forms
         'forms_builder.contrib.cmsplugin_forms_builder',
         'forms_builder.forms',
     )
+
+Since everything will be handled by the CMS, you can remove the ``urls.py`` entry. Herewith you can't load the form
+anymore with a direct link, you can only view the form using the CMS plugin on a designated page.
