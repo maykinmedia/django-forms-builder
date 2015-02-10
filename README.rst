@@ -295,7 +295,7 @@ Django CMS 3 plugin
 ===================
 
 In ``forms_builder`` we added ``contrib.cmsplugin_forms_builder``.
-Just add that package to your ``INSTALLED_APPS`` above the ``forms_builder.forms`` entry and you're good to go.
+Just add that package to your ``INSTALLED_APPS`` above the ``forms_builder.forms`` entry and you're good to go::
 
     INSTALLED_APPS = (
         # other apps
