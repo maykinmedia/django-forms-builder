@@ -289,3 +289,10 @@ by installing the `xlwt`_ package::
 .. _`django-email-extras`: https://github.com/stephenmcd/django-email-extras
 .. _`PGP`: http://en.wikipedia.org/wiki/Pretty_Good_Privacy
 .. _`xlwt`: http://www.python-excel.org/
+
+
+Django CMS 3 plugin
+===================
+
+In ``contrib`` we added a ``cmsplugin_forms_builder``. Just add that package to your ``INSTALLED_APPS`` above the
+``forms_builder.forms`` entry and you're good to go.
