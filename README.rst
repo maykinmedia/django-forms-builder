@@ -294,5 +294,11 @@ by installing the `xlwt`_ package::
 Django CMS 3 plugin
 ===================
 
-In ``contrib`` we added a ``cmsplugin_forms_builder``. Just add that package to your ``INSTALLED_APPS`` above the
-``forms_builder.forms`` entry and you're good to go.
+In ``forms_builder`` we added ``contrib.cmsplugin_forms_builder``.
+Just add that package to your ``INSTALLED_APPS`` above the ``forms_builder.forms`` entry and you're good to go.
+
+    INSTALLED_APPS = (
+        # other apps
+        'forms_builder.contrib.cmsplugin_forms_builder',
+        'forms_builder.forms',
+    )

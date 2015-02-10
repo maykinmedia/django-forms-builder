@@ -1,9 +1,9 @@
 from cms.plugin_pool import plugin_pool
 from cms.plugin_base import CMSPluginBase
 from django.utils.translation import ugettext_lazy as _
-from forms_builder.forms.views import FormDetailMixin
 
-from .models import Forms
+from forms_builder.forms.views import FormDetailMixin
+from forms_builder.contrib.cmsplugin_forms_builder.models import Forms
 
 
 @plugin_pool.register_plugin
