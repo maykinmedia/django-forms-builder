@@ -1,7 +1,8 @@
 from __future__ import unicode_literals
 
+from importlib import import_module
+
 from django.template.defaultfilters import slugify as django_slugify
-from django.utils.importlib import import_module
 from unidecode import unidecode
 
 
