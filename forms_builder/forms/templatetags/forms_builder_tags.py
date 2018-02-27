@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 from future.builtins import str
 
 from django import template
+from django.shortcuts import render
 from django.template.loader import get_template
 
 from forms_builder.forms.forms import FormForForm
@@ -33,11 +34,15 @@ class BuiltFormNode(template.Node):
             form = template.Variable(self.value).resolve(context)
         if not isinstance(form, Form) or not form.published(for_user=user):
             return ""
-        t = get_template("forms/includes/built_form.html")
-        context["form"] = form
+
+        context_dict = {}
+        context_dict.update(form=form)
         form_args = (form, context, post or None, files or None)
-        context["form_for_form"] = FormForForm(*form_args, initial=get)
-        return t.render(context)
+        context_dict["form_for_form"] = FormForForm(*form_args, initial=get)
+        return render(
+            request,
+            template_name="forms/includes/built_form.html",
+            context=context_dict)
 
 
 @register.tag
