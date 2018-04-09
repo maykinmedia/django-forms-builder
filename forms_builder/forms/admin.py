@@ -13,7 +13,7 @@ from django.core.files.storage import FileSystemStorage
 from django.core.urlresolvers import reverse
 from django.db.models import Count
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render_to_response, get_object_or_404, render
 from django.template import RequestContext
 from django.utils.translation import ungettext, ugettext_lazy as _
 
@@ -121,7 +121,7 @@ class FormAdmin(admin.ModelAdmin):
         export_xls = export_xls or request.POST.get("export_xls")
         if submitted:
             if export:
-                response = HttpResponse(mimetype="text/csv")
+                response = HttpResponse(content_type="text/csv")
                 fname = "%s-%s.csv" % (form.slug, slugify(now().ctime()))
                 attachment = "attachment; filename=%s" % fname
                 response["Content-Disposition"] = attachment
@@ -142,7 +142,7 @@ class FormAdmin(admin.ModelAdmin):
                 response.write(data)
                 return response
             elif XLWT_INSTALLED and export_xls:
-                response = HttpResponse(mimetype="application/vnd.ms-excel")
+                response = HttpResponse(content_type="application/vnd.ms-excel")
                 fname = "%s-%s.xls" % (form.slug, slugify(now().ctime()))
                 attachment = "attachment; filename=%s" % fname
                 response["Content-Disposition"] = attachment
@@ -183,7 +183,7 @@ class FormAdmin(admin.ModelAdmin):
                    "can_delete_entries": can_delete_entries,
                    "submitted": submitted,
                    "xlwt_installed": XLWT_INSTALLED}
-        return render_to_response(template, context, RequestContext(request))
+        return render(request, template, context)
 
     def file_view(self, request, field_entry_id):
         """
@@ -192,7 +192,7 @@ class FormAdmin(admin.ModelAdmin):
         model = self.fieldentry_model
         field_entry = get_object_or_404(model, id=field_entry_id)
         path = join(fs.location, field_entry.value)
-        response = HttpResponse(mimetype=guess_type(path)[0])
+        response = HttpResponse(content_type=guess_type(path)[0])
         f = open(path, "r+b")
         response["Content-Disposition"] = "attachment; filename=%s" % f.name
         response.write(f.read())
